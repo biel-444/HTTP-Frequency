@@ -2,135 +2,165 @@ import asyncio
 import time
 from dataclasses import dataclass
 from typing import Optional, List
-
 import httpx
 
 
+# Resultado de uma requisição para uma URL
 @dataclass
-class ProbeResult:
-    url: str
-    ok: bool
-    status: Optional[int]
-    elapsed_s: Optional[float]
-    bytes_rcv: Optional[int]
-    final_url: Optional[str]
-    error: Optional[str]
+class ResultadoRequisicao:
+    url: str                  # URL testada
+    ok: bool                  # True se consideramos sucesso
+    status: Optional[int]     # Código HTTP (200, 404, etc.) ou None se falhou antes
+    tempo_s: Optional[float]  # Tempo de resposta em segundos
+    bytes_recebidos: Optional[int]  # Tamanho da resposta em bytes
+    url_final: Optional[str]  # URL final após redirecionamentos
+    erro: Optional[str]       # Nome do erro de rede (se houver)
 
 
-async def fetch_one(client: httpx.AsyncClient, url: str, method: str = "GET") -> ProbeResult:
-    start = time.perf_counter()
+# Faz UMA requisição para UMA URL
+async def buscar(
+    cliente: httpx.AsyncClient,
+    url: str,
+    metodo: str = "GET"
+) -> ResultadoRequisicao:
+    inicio = time.perf_counter()  # marca o tempo antes da requisição
     try:
-        r = await client.request(method, url)
-        elapsed = time.perf_counter() - start
-        body = r.content if r.content is not None else b""
-        return ProbeResult(
-            url=url,
-            ok=r.status_code < 400,
-            status=r.status_code,
-            elapsed_s=elapsed,
-            bytes_rcv=len(body),
-            final_url=str(r.url),
-            error=None,
+        resposta = await cliente.request(metodo, url)  # faz a requisição HTTP
+        tempo = time.perf_counter() - inicio          # tempo que demorou
+
+        corpo = resposta.content if resposta.content is not None else b""
+
+        return ResultadoRequisicao(
+            url = url,
+            ok = resposta.status_code < 400,
+            status = resposta.status_code,
+            tempo_s = tempo,
+            bytes_recebidos = len(corpo),
+            url_final = str(resposta.url),
+            erro = None,
         )
-    except httpx.HTTPError as e:
-        return ProbeResult(
-            url=url,
-            ok=False,
-            status=None,
-            elapsed_s=None,
-            bytes_rcv=None,
-            final_url=None,
-            error=str(e.__class__.__name__),
+    except httpx.HTTPError as erro_rede:
+        # Qualquer erro de rede cai aqui (timeout, DNS, conexão, etc.)
+        return ResultadoRequisicao(
+            url = url,
+            ok = False,
+            status = None,
+            tempo_s = None,
+            bytes_recebidos = None,
+            url_final = None,
+            erro = erro_rede.__class__.__name__,
         )
 
 
-async def run_probe(urls: List[str], concurrency: int, timeout: float, method: str) -> List[ProbeResult]:
-    sem = asyncio.Semaphore(concurrency)
+# Roda as requisições para TODAS as URLs, com limite de concorrência
+async def executar(
+    urls: List[str],
+    concorrencia: int,
+    timeout: float,
+    metodo: str
+) -> List[ResultadoRequisicao]:
+    semaforo = asyncio.Semaphore(concorrencia)
 
     async with httpx.AsyncClient(
-        follow_redirects=True,
-        timeout=httpx.Timeout(timeout, connect=timeout, read=timeout),
-        headers={"User-Agent": "HTTP-Frequency/1.0"}
-    ) as client:
+        follow_redirects = True,
+        timeout = httpx.Timeout(timeout, connect = timeout, read = timeout),
+        headers = {"User-Agent": "HTTP-Frequency/1.0"}
+    ) as cliente:
 
-        async def bound_fetch(u: str):
-            async with sem:
-                return await fetch_one(client, u, method)
+        async def buscar_com_limite(u: str):
+            # Garante que só "concorrencia" requisições rodem ao mesmo tempo
+            async with semaforo:
+                return await buscar(cliente, u, metodo)
 
-        tasks = [asyncio.create_task(bound_fetch(u)) for u in urls]
-        return await asyncio.gather(*tasks)
+        tarefas = [asyncio.create_task(buscar_com_limite(u)) for u in urls]
+        resultados = await asyncio.gather(*tarefas)
+        return resultados
 
 
-def get_urls_from_input() -> List[str]:
-    print("Digite as URLs que você quer testar.")
-    print("Uma por linha. Deixe em branco e aperte Enter para finalizar.\n")
+# Pega as URLs digitadas pelo usuário no terminal
+def obter_urls_do_usuario() -> List[str]:
+    print("Digite as URLs que você quer testar: (Uma por linha)")
+    print("\nDeixe em branco e aperte Enter para finalizar.\n")
 
     urls = []
     while True:
         linha = input("URL: ").strip()
         if not linha:
             break
-        # se o usuário esquecer do http, adicionamos http:// por padrão
+
+        # Se o usuário não colocar http, colocamos https:// por padrão
         if not (linha.startswith("http://") or linha.startswith("https://")):
             linha = "https://" + linha
+
         urls.append(linha)
 
-    # remover duplicadas mantendo ordem
-    seen = set()
-    uniq = []
+    # Remove URLs repetidas mantendo a ordem
+    vistas = set()
+    urls_unicas = []
     for u in urls:
-        if u not in seen:
-            uniq.append(u)
-            seen.add(u)
-    return uniq
+        if u not in vistas:
+            urls_unicas.append(u)
+            vistas.add(u)
+
+    return urls_unicas
 
 
-def print_report(results: List[ProbeResult]):
-    ok = [r for r in results if r.ok and r.elapsed_s is not None]
-    fail = [r for r in results if not r.ok]
+# Mostra o relatório no terminal
+def mostrar_relatorio(resultados: List[ResultadoRequisicao]):
+    ok = [r for r in resultados if r.ok and r.tempo_s is not None]
+    falha = [r for r in resultados if not r.ok]
 
-    ok_sorted = sorted(ok, key=lambda r: r.elapsed_s)
+    # Ordena as bem-sucedidas pelo tempo (mais rápidas primeiro)
+    ok_ordenados = sorted(ok, key = lambda r: r.tempo_s)
 
     print("\n=== HTTP Frequency — Resultados ===")
-    if ok_sorted:
-        print("\nTop mais rápidos:")
-        for i, r in enumerate(ok_sorted, 1):
-            print(f"{i:>2}. {r.url:<40} {r.elapsed_s*1000:7.1f} ms  (HTTP {r.status})")
+    if ok_ordenados:
+        print("\nTop URLs mais rápidas:")
+        for i, r in enumerate(ok_ordenados, 1):
+            print(f"{i:>2}. {r.url:<40} {r.tempo_s*1000:7.1f} ms  (HTTP {r.status})")
     else:
-        print("\nNenhum site respondeu com sucesso.")
+        print("\nNenhuma URL respondeu com sucesso.")
 
-    if fail:
-        print("\nFalhas/erros:")
-        for r in fail:
-            print(f" - {r.url}  ->  erro: {r.error or ('HTTP ' + str(r.status))}")
+    if falha:
+        print("\nFalhas / erros de rede:")
+        for r in falha:
+            msg_erro = r.erro or (f"HTTP {r.status}")
+            print(f" - {r.url}  ->  erro: {msg_erro}")
     print()
 
 
 def main():
-    print("=== HTTP Frequency ===")
-    urls = get_urls_from_input()
+    print("""
+\033[31m===============================================
+         H T T P   F R E Q U E N C Y
+===============================================\033[0m
+        \033[32mAnalisador de Desempenho HTTP
+            by Gabriel de Vargas\033[0m
+\033[31m-----------------------------------------------\033[0m""")
+    urls = obter_urls_do_usuario()
     if not urls:
-        print("Nenhuma URL informada. Encerrando.")
+        print("Nenhuma URL informada.")
         return
 
-    # parâmetros básicos com valores padrão
+    # Pergunta a concorrência
     try:
-        conc_str = input("\nConcorrência (requisições simultâneas) [padrão 5]: ").strip()
-        concurrency = int(conc_str) if conc_str else 5
+        texto_conc = input("\nConcorrência (requisições simultâneas) [recomendado = 5]: ").strip()
+        concorrencia = int(texto_conc) if texto_conc else 5
     except ValueError:
-        concurrency = 5
+        concorrencia = 5
 
+    # Pergunta o intervalo de tempo
     try:
-        tout_str = input("Timeout em segundos [padrão 5]: ").strip()
-        timeout = float(tout_str) if tout_str else 5.0
-    except ValueError:
+        texto_timeout = input("Timeout em segundos [recomendado = 5]: ").strip()
+        timeout = float(texto_timeout) if texto_timeout else 5.0
+    except ValueError: #se o valor digitado der erro, recebera 5.0
         timeout = 5.0
 
-    method = "GET"  # para o trabalho, manter fixo em GET (poderíamos perguntar também)
+    metodo = "GET"  # deixei fixo em GET 
 
-    print(f"\nTestando {len(urls)} URL(s) | conc={concurrency} | timeout={timeout}s | method={method}")
-    results = asyncio.run(run_probe(urls, concurrency, timeout, method))
-    print_report(results)
+    print(f"\nTestando {len(urls)} URL(s) | conc={concorrencia} | timeout={timeout}s | método={metodo}")
+    resultados = asyncio.run(executar(urls, concorrencia, timeout, metodo))
+    mostrar_relatorio(resultados)
 
 
 if __name__ == "__main__":
