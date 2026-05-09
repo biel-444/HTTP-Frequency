@@ -1,65 +1,8 @@
-/*async function executar() {
-
-    const textarea = document.getElementById("urls")
-
-    const stats = document.getElementById("stats")
-
-    const tbody = document.getElementById("results")
-
-    tbody.innerHTML = ""
-
-    const urls = textarea.value
-        .split("\n")
-        .map(url => url.trim())
-        .filter(url => url !== "")
-
-    const response = await fetch(
-        "http://127.0.0.1:8000/executions",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                urls,
-                concurrency: 5,
-                timeout: 5
-            })
-        }
-    )
-
-    const data = await response.json()
-
-    stats.innerHTML = `
-        <p>Total: ${data.total_urls}</p>
-        <p>Sucessos: ${data.sucessos}</p>
-        <p>Falhas: ${data.falhas}</p>
-        <p>Tempo médio: ${data.tempo_medio}s</p>
-        <a href="http://127.0.0.1:8000/executions/${data.execution_id}/download">
-            Baixar CSV
-        </a>
-    `
-
-    data.resultados.forEach(result => {
-
-        const row = document.createElement("tr")
-
-        row.innerHTML = `
-            <td>${result.url}</td>
-            <td>${result.status_code}</td>
-            <td>${result.tempo_resposta}</td>
-            <td>${result.sucesso}</td>
-        `
-
-        tbody.appendChild(row)
-    })
-}*/
-
-const API_URL = "http://127.0.0.1:8000"
+const API_URL = "https://http-frequency.onrender.com"
 
 function formatarTempo(segundos) {
 
-    if (!segundos) {
+    if (segundos === null || segundos === undefined) {
         return "-"
     }
 
@@ -88,6 +31,101 @@ function criarBadgeStatus(sucesso) {
     `
 }
 
+function renderizarStats(data) {
+
+    return `
+        <div class="card">
+            <span>Total</span>
+            <strong>${data.total_urls}</strong>
+        </div>
+
+        <div class="card">
+            <span>Online</span>
+            <strong>${data.sucessos}</strong>
+        </div>
+
+        <div class="card">
+            <span>Offline</span>
+            <strong>${data.falhas}</strong>
+        </div>
+
+        <div class="card">
+            <span>Tempo médio</span>
+            <strong>
+                ${formatarTempo(data.tempo_medio)}
+            </strong>
+        </div>
+
+        <a
+            class="download-link"
+            href="${API_URL}/executions/${data.execution_id}/download"
+            target="_blank"
+        >
+            ⬇ Baixar CSV
+        </a>
+    `
+}
+
+function renderizarResultados(resultados, tbody) {
+
+    if (!resultados || resultados.length === 0) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    Nenhum resultado encontrado.
+                </td>
+            </tr>
+        `
+
+        return
+    }
+
+    resultados.forEach(result => {
+
+        const row = document.createElement("tr")
+
+        row.className = result.sucesso
+            ? "row-success"
+            : "row-error"
+
+        row.innerHTML = `
+            <td>${result.url}</td>
+
+            <td>
+                ${result.status_code ?? "-"}
+            </td>
+
+            <td>
+                ${formatarTempo(result.tempo_resposta)}
+            </td>
+
+            <td>
+                ${criarBadgeStatus(result.sucesso)}
+            </td>
+        `
+
+        tbody.appendChild(row)
+    })
+}
+
+function renderizarErro(stats, tbody, mensagem) {
+
+    stats.innerHTML = `
+        <div class="error-box">
+            ${mensagem}
+        </div>
+    `
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4" class="empty-state">
+                Nenhum resultado disponível.
+            </td>
+        </tr>
+    `
+}
+
 async function executar() {
 
     const textarea = document.getElementById("urls")
@@ -99,6 +137,8 @@ async function executar() {
     const button = document.getElementById("execute-btn")
 
     tbody.innerHTML = ""
+
+    stats.innerHTML = ""
 
     const urls = textarea.value
         .split("\n")
@@ -136,90 +176,31 @@ async function executar() {
         )
 
         if (!response.ok) {
-            throw new Error("Erro ao executar requests")
+
+            throw new Error(
+                `Erro HTTP: ${response.status}`
+            )
         }
 
         const data = await response.json()
 
-        stats.innerHTML = `
-            <div class="card">
-                <span>Total</span>
-                <strong>${data.total_urls}</strong>
-            </div>
+        stats.innerHTML = renderizarStats(data)
 
-            <div class="card">
-                <span>Online</span>
-                <strong>${data.sucessos}</strong>
-            </div>
-
-            <div class="card">
-                <span>Offline</span>
-                <strong>${data.falhas}</strong>
-            </div>
-
-            <div class="card">
-                <span>Tempo médio</span>
-                <strong>
-                    ${formatarTempo(data.tempo_medio)}
-                </strong>
-            </div>
-        `
-
-        data.resultados.forEach(result => {
-
-            const row = document.createElement("tr")
-
-            row.className = result.sucesso
-                ? "row-success"
-                : "row-error"
-
-            row.innerHTML = `
-                <td>${result.url}</td>
-
-                <td>
-                    ${result.status_code || "-"}
-                </td>
-
-                <td>
-                    ${formatarTempo(result.tempo_resposta)}
-                </td>
-
-                <td>
-                    ${criarBadgeStatus(result.sucesso)}
-                </td>
-            `
-
-            tbody.appendChild(row)
-        })
-
-        stats.innerHTML += `
-            <a
-                class="download-link"
-                href="${API_URL}/executions/${data.execution_id}/download"
-            >
-                ⬇ Baixar CSV
-            </a>
-        `
+        renderizarResultados(
+            data.resultados,
+            tbody
+        )
     }
 
     catch (error) {
 
         console.error(error)
 
-        stats.innerHTML = `
-            <div class="error-box">
-                Erro ao conectar com a API.
-                Verifique se o backend está online.
-            </div>
-        `
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="empty-state">
-                    Nenhum resultado disponível.
-                </td>
-            </tr>
-        `
+        renderizarErro(
+            stats,
+            tbody,
+            "Erro ao conectar com a API. Verifique se o backend está online."
+        )
     }
 
     finally {
