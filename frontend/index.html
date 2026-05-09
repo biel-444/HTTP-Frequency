@@ -1,0 +1,149 @@
+<!--
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HTTPFrequency</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>HTTPFrequency</h1>
+
+        <textarea
+            id="urls"
+            placeholder="Cole uma URL por linha"
+        ></textarea>
+
+        <button onclick="executar()">
+            Executar
+        </button>
+
+        <div id="stats"></div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Tempo</th>
+                    <th>Sucesso</th>
+                </tr>
+            </thead>
+
+            <tbody id="results"></tbody>
+        </table>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>HTTPFrequency</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="hero">
+
+            <h1>HTTPFrequency</h1>
+
+            <p class="subtitle">
+                HTTP health checks and response analysis
+            </p>
+
+        </header>
+
+        <section class="input-section">
+
+            <textarea
+                id="urls"
+                placeholder="Cole uma URL por linha..."
+            ></textarea>
+
+            <button
+                id="execute-btn"
+                onclick="executar()"
+            >
+                Executar
+            </button>
+
+        </section>
+
+        <section
+            id="stats"
+            class="stats-grid"
+        ></section>
+
+        <section class="results-section">
+
+            <div class="results-header">
+
+                <h2>Resultados</h2>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>URL</th>
+                            <th>Status HTTP</th>
+                            <th>Tempo</th>
+                            <th>Resultado</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="results">
+
+                        <tr>
+                            <td
+                                colspan="4"
+                                class="empty-state"
+                            >
+                                Nenhuma execução realizada ainda.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
