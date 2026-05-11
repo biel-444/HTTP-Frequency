@@ -1,7 +1,3 @@
-import { injectSpeedInsights } from '@vercel/speed-insights';
-
-injectSpeedInsights();
-
 const API_URL = "https://http-frequency.onrender.com"
 
 function formatarTempo(segundos) {
