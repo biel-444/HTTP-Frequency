@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>HTTPFrequency</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+
+    <div class="logo">
+      HTTP<span>Frequency</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#historico">Histórico</a>
+      <a href="#faq">FAQ</a>
+      <a href="#feedback">Feedbacks</a>
+    </nav>
+
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+
+    <div class="hero-content">
+
+      <h1 class="hero-title">
+        HTTP<span>Frequency</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Plataforma moderna para análise de requisições HTTP,
+        monitoramento de endpoints e testes avançados de APIs.
+      </p>
+
+      <!-- REQUEST AREA -->
+      <div class="request-container">
+
+        <div class="request-top">
+
+          <input
+            type="text"
+            id="url"
+            class="input-url"
+            placeholder="Digite uma URL..."
+          />
+
+          <select class="select-method" id="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+          </select>
+
+          <button class="request-btn" onclick="enviarRequest()">
+            Enviar Request
+          </button>
+
+        </div>
+
+        <textarea
+          id="body"
+          class="json-body"
+          placeholder='Body da requisição (JSON)'
+        ></textarea>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+
+    <div class="feature-card">
+
+      <h3>⚡ Requests HTTP</h3>
+
+      <p>
+        Faça requisições em tempo real e visualize
+        respostas rapidamente.
+      </p>
+
+    </div>
+
+    <div class="feature-card">
+
+      <h3>📜 Histórico</h3>
+
+      <p>
+        Armazene chamadas antigas e reutilize requests importantes.
+      </p>
+
+    </div>
+
+    <div class="feature-card">
+
+      <h3>🔐 Segurança</h3>
+
+      <p>
+        Projeto desenvolvido pensando em estabilidade,
+        performance e segurança.
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- SOBRE -->
+  <section class="about" id="sobre">
+
+    <div class="about-text">
+
+      <h2>Sobre o Projeto</h2>
+
+      <p>
+        O HTTPFrequency foi criado para facilitar testes HTTP,
+        monitoramento de APIs e visualização de respostas
+        em uma interface moderna e intuitiva.
+      </p>
+
+      <p>
+        O objetivo do projeto é unir backend robusto em FastAPI
+        com um frontend elegante e funcional.
+      </p>
+
+    </div>
+
+    <div class="about-card">
+
+      <h2>Sobre Mim</h2>
+
+      <p>
+        Desenvolvido por Gabriel Vargas,
+        focado em backend, segurança da informação
+        e arquitetura de software.
+      </p>
+
+      <div class="social-links">
+
+        <a href="#">
+          GitHub
+        </a>
+
+        <a href="#">
+          LinkedIn
+        </a>
+
+        <a href="#">
+          Portfólio
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+
+    <h2 class="section-title">
+      Perguntas Frequentes
+    </h2>
+
+    <div class="faq-item">
+
+      <h3>
+        O HTTPFrequency é gratuito?
+      </h3>
+
+      <p>
+        Sim. O projeto está sendo desenvolvido de forma aberta
+        e continuará evoluindo.
+      </p>
+
+    </div>
+
+    <div class="faq-item">
+
+      <h3>
+        Posso salvar requisições?
+      </h3>
+
+      <p>
+        Sim. O sistema terá histórico persistente integrado
+        ao backend.
+      </p>
+
+    </div>
+
+    <div class="faq-item">
+
+      <h3>
+        O projeto terá autenticação?
+      </h3>
+
+      <p>
+        Sim. Autenticação e contas de usuários estão
+        planejadas para futuras versões.
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- FEEDBACK -->
+  <section class="feedback" id="feedback">
+
+    <h2 class="section-title">
+      Feedbacks e Sugestões
+    </h2>
+
+    <form class="feedback-form">
+
+      <input
+        type="text"
+        placeholder="Seu nome"
+      />
+
+      <input
+        type="email"
+        placeholder="Seu email"
+      />
+
+      <textarea
+        placeholder="Digite seu feedback..."
+      ></textarea>
+
+      <button
+        type="submit"
+        class="request-btn"
+      >
+        Enviar Feedback
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+
+    <div>
+
+      <div class="logo">
+        HTTP<span>Frequency</span>
+      </div>
+
+      <p>
+        Plataforma moderna para testes,
+        monitoramento e análise de APIs.
+      </p>
+
+    </div>
+
+    <div>
+
+      <p>
+        © 2026 HTTPFrequency
+      </p>
+
+    </div>
+
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

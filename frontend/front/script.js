@@ -1,4 +1,4 @@
-const API_URL = "https://http-frequency.onrender.com"
+/*const API_URL = "https://http-frequency.onrender.com"
 
 function formatarTempo(segundos) {
 
@@ -209,4 +209,4 @@ async function executar() {
 
         button.innerText = "Executar"
     }
-}
+}*/
