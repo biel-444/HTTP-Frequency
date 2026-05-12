@@ -23,7 +23,7 @@
     <nav class="nav-links">
       <a href="#home">Home</a>
       <a href="#sobre">Sobre</a>
-      <a href="#historico">Histórico</a>
+
       <a href="#faq">FAQ</a>
       <a href="#feedback">Feedbacks</a>
     </nav>
@@ -46,37 +46,51 @@
 
       <!-- REQUEST AREA -->
       <div class="request-container">
+          <textarea
+            id="urls"
+            class="json-body"
+            placeholder="Digite uma URL por linha..."
+          ></textarea>
 
-        <div class="request-top">
+          <div
+            class="request-top"
+            style="
+              margin-top:20px;
+              gap:20px;
+              flex-wrap:wrap;
+            "
+          >
 
-          <input
-            type="text"
-            id="url"
-            class="input-url"
-            placeholder="Digite uma URL..."
-          />
+            <input
+              type="number"
+              id="concurrency"
+              class="input-url"
+              placeholder="Concorrência"
+              value=""
+            />
 
-          <select class="select-method" id="method">
-            <option>GET</option>
-            <option>POST</option>
-            <option>PUT</option>
-            <option>DELETE</option>
-          </select>
+            <input
+              type="number"
+              id="timeout"
+              class="input-url"
+              placeholder="Timeout"
+              value=""
+            />
 
-          <button class="request-btn" onclick="enviarRequest()">
-            Enviar Request
-          </button>
+            <button
+              class="request-btn"
+              onclick="enviarRequest()"
+            >
+              Executar Análise
+            </button>
 
         </div>
 
-        <textarea
-          id="body"
-          class="json-body"
-          placeholder='Body da requisição (JSON)'
-        ></textarea>
-
-      </div>
-
+            <div
+              id="resultado-container"
+              class="request-container"
+              style="margin-top:30px;"
+            ></div>
     </div>
 
   </section>
@@ -86,7 +100,7 @@
 
     <div class="feature-card">
 
-      <h3>⚡ Requests HTTP</h3>
+      <h3>Requests HTTP</h3>
 
       <p>
         Faça requisições em tempo real e visualize
@@ -97,21 +111,21 @@
 
     <div class="feature-card">
 
-      <h3>📜 Histórico</h3>
+      <h3>Download dos dados em CSV</h3>
 
       <p>
-        Armazene chamadas antigas e reutilize requests importantes.
+        Faça downloads dos dados das requisições que fez em CSV.
       </p>
 
     </div>
 
     <div class="feature-card">
 
-      <h3>🔐 Segurança</h3>
+      <h3>Ánalise</h3>
 
       <p>
-        Projeto desenvolvido pensando em estabilidade,
-        performance e segurança.
+        Projeto desenvolvido com foco em Requisições HTTP,
+        performance e velocidade.
       </p>
 
     </div>
@@ -132,8 +146,8 @@
       </p>
 
       <p>
-        O objetivo do projeto é unir backend robusto em FastAPI
-        com um frontend elegante e funcional.
+        O objetivo do projeto é fornecer uma plataforma moderna para execução concorrente de requisições HTTP,
+         análise de desempenho com a biblioteca HTTPX e geração de métricas e relatórios.
       </p>
 
     </div>
@@ -143,24 +157,26 @@
       <h2>Sobre Mim</h2>
 
       <p>
-        Desenvolvido por Gabriel Vargas,
-        focado em backend, segurança da informação
+        Desenvolvido por Gabriel de Vargas,
+        focado em backend, bibliotecas em Python
         e arquitetura de software.
       </p>
 
       <div class="social-links">
 
-        <a href="#">
+        <a target="_blank" href="https://github.com/biel-444" >
           GitHub
         </a>
 
-        <a href="#">
+        <a target="_blank" href="https://www.linkedin.com/in/gabriel-de-vargas-a1014b2b0/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BDBwxCjyIR02O2GmAGbjWxA%3D%3D" >
           LinkedIn
         </a>
 
+        <!-- 
         <a href="#">
           Portfólio
-        </a>
+        </a> 
+        -->
 
       </div>
 

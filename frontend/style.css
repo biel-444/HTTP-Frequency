@@ -595,3 +595,219 @@ body {
     padding: 28px;
   }
 }
+
+/* =========================
+   RESULTADOS
+========================= */
+
+#resultado-container {
+  animation: fadeUp 0.4s ease;
+}
+
+.result-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 30px;
+}
+
+.result-card {
+  background: rgba(255,255,255,0.04);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 18px;
+
+  padding: 20px;
+}
+
+.result-card span {
+  display: block;
+
+  color: var(--text-secondary);
+
+  font-size: 0.9rem;
+
+  margin-bottom: 8px;
+}
+
+.result-card strong {
+  font-size: 1.3rem;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  background: rgba(255,255,255,0.03);
+}
+
+thead {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(37,99,235,0.18),
+      rgba(0,183,255,0.12)
+    );
+}
+
+th {
+  padding: 18px;
+
+  text-align: left;
+
+  color: var(--blue-secondary);
+
+  font-weight: 700;
+
+  font-size: 0.95rem;
+}
+
+td {
+  padding: 18px;
+
+  border-top:
+    1px solid rgba(255,255,255,0.06);
+
+  color: var(--text-secondary);
+
+  font-size: 0.95rem;
+}
+
+tr {
+  transition: 0.25s;
+}
+
+tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+/* =========================
+   STATUS COLORS
+========================= */
+
+.status-success {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.status-fail {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* =========================
+   JSON RESULT
+========================= */
+
+.result-json {
+  background: #020617;
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  padding: 24px;
+
+  border-radius: 22px;
+
+  overflow: auto;
+
+  color: #38bdf8;
+
+  font-size: 0.92rem;
+
+  line-height: 1.7;
+
+  margin-top: 30px;
+
+  text-align: left;
+}
+
+/* =========================
+   INPUT IMPROVEMENTS
+========================= */
+
+.input-url,
+.json-body,
+.feedback-form input,
+.feedback-form textarea {
+  transition:
+    border 0.25s,
+    box-shadow 0.25s,
+    background 0.25s;
+}
+
+.input-url:focus,
+.json-body:focus,
+.feedback-form input:focus,
+.feedback-form textarea:focus {
+
+  border-color:
+    rgba(0,183,255,0.35);
+
+  box-shadow:
+    0 0 0 4px rgba(0,183,255,0.08);
+
+  background:
+    rgba(255,255,255,0.06);
+}
+
+/* =========================
+   BUTTON IMPROVEMENTS
+========================= */
+
+.request-btn:disabled {
+  opacity: 0.7;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+.request-btn:active {
+  transform: scale(0.98);
+}
+
+/* =========================
+   SMOOTH APPEAR
+========================= */
+
+@keyframes fadeUp {
+
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   MOBILE TABLE
+========================= */
+
+@media (max-width: 900px) {
+
+  table {
+    display: block;
+
+    overflow-x: auto;
+  }
+}

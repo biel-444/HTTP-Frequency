@@ -10,60 +10,62 @@ const API_URL = "https://http-frequency.onrender.com";
 
 async function enviarRequest() {
 
-  const urlInput = document.getElementById("url");
-  const methodInput = document.getElementById("method");
-  const bodyInput = document.getElementById("body");
+  const urlsInput =
+    document.getElementById("urls");
 
-  const url = urlInput.value.trim();
-  const method = methodInput.value;
+  const concurrencyInput =
+    document.getElementById("concurrency");
 
-  let body = {};
+  const timeoutInput =
+    document.getElementById("timeout");
+
+  const urls = urlsInput.value
+    .split("\n")
+    .map(url => url.trim())
+    .filter(url => url !== "");
 
   /* =========================
      VALIDAÇÕES
   ========================= */
 
-  if (!url) {
-    alert("Digite uma URL.");
+  if (urls.length === 0) {
+
+    alert("Digite ao menos uma URL.");
+
     return;
   }
 
-  try {
-
-    new URL(url);
-
-  } catch {
-
-    alert("URL inválida.");
-    return;
-  }
-
-  /* =========================
-     PARSE JSON
-  ========================= */
-
-  if (bodyInput.value.trim() !== "") {
+  for (const url of urls) {
 
     try {
 
-      body = JSON.parse(bodyInput.value);
+      new URL(url);
 
     } catch {
 
-      alert("JSON inválido.");
+      alert(`URL inválida: ${url}`);
+
       return;
     }
   }
+
+  const concurrency =
+    parseInt(concurrencyInput.value) || 10;
+
+  const timeout =
+    parseInt(timeoutInput.value) || 10;
 
   /* =========================
      LOADING BUTTON
   ========================= */
 
-  const button = document.querySelector(".request-btn");
+  const button =
+    document.querySelector(".request-btn");
 
-  const originalText = button.innerText;
+  const originalText =
+    button.innerText;
 
-  button.innerText = "Enviando...";
+  button.innerText = "Executando...";
   button.disabled = true;
 
   try {
@@ -81,26 +83,19 @@ async function enviarRequest() {
       },
 
       body: JSON.stringify({
-        url: url,
-        method: method,
-        body: body
+        urls: urls,
+        concurrency: concurrency,
+        timeout: timeout
       })
     });
 
-    /* =========================
-       RESPONSE JSON
-    ========================= */
+    const data =
+      await response.json();
 
-    const data = await response.json();
-
-    mostrarResultado(data, response.status);
-
-    salvarHistorico({
-      url,
-      method,
-      status: response.status,
-      horario: new Date().toLocaleString()
-    });
+    mostrarResultado(
+      data,
+      response.status
+    );
 
   } catch (error) {
 
@@ -110,7 +105,9 @@ async function enviarRequest() {
 
   } finally {
 
-    button.innerText = originalText;
+    button.innerText =
+      originalText;
+
     button.disabled = false;
   }
 }
@@ -121,21 +118,76 @@ async function enviarRequest() {
 
 function mostrarResultado(data, status) {
 
-  let resultadoContainer =
+  const resultadoContainer =
     document.getElementById("resultado-container");
 
-  /* cria dinamicamente */
-  if (!resultadoContainer) {
+  let tabelaHTML = "";
 
-    resultadoContainer = document.createElement("div");
+  if (data.resultados) {
 
-    resultadoContainer.id = "resultado-container";
+    tabelaHTML = `
 
-    resultadoContainer.classList.add("request-container");
+      <table style="
+        width:100%;
+        border-collapse:collapse;
+        margin-top:20px;
+      ">
 
-    document.querySelector(".hero-content")
-      .appendChild(resultadoContainer);
+        <thead>
+
+          <tr>
+
+            <th>URL</th>
+            <th>Status</th>
+            <th>Tempo</th>
+            <th>Resultado</th>
+            <th>Bytes</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+    `;
+
+    data.resultados.forEach(r => {
+
+      tabelaHTML += `
+
+        <tr>
+
+          <td>${r.url}</td>
+
+          <td>${r.status_code}</td>
+
+          <td>
+            ${r.tempo_resposta
+              ? r.tempo_resposta.toFixed(3) + "s"
+              : "-"}
+          </td>
+
+          <td>
+            ${r.sucesso
+              ? "Sucesso"
+              : "Falha"}
+          </td>
+
+          <td>
+            ${r.bytes_recebidos ?? "-"}
+          </td>
+
+        </tr>
+      `;
+    });
+
+    tabelaHTML += `
+        </tbody>
+      </table>
+    `;
   }
+
+  const csvUrl =
+    `${API_URL}/${data.execution_id}/download`;
 
   resultadoContainer.innerHTML = `
   
@@ -149,10 +201,53 @@ function mostrarResultado(data, status) {
       border-radius:14px;
       background: rgba(255,255,255,0.04);
       border:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      gap:20px;
+      flex-wrap:wrap;
     ">
 
-      <strong>Status:</strong>
-      ${status}
+      <div>
+        <strong>Status:</strong>
+        ${status}
+      </div>
+
+      <div>
+        <strong>Total:</strong>
+        ${data.total_urls}
+      </div>
+
+      <div>
+        <strong>Sucessos:</strong>
+        ${data.sucessos}
+      </div>
+
+      <div>
+        <strong>Falhas:</strong>
+        ${data.falhas}
+      </div>
+
+      <div>
+        <strong>Tempo Médio:</strong>
+        ${data.tempo_medio}s
+      </div>
+
+    </div>
+
+    ${tabelaHTML}
+
+    <div style="margin-top:25px;">
+
+      <a
+        href="${csvUrl}"
+        target="_blank"
+        class="request-btn"
+        style="
+          text-decoration:none;
+          display:inline-block;
+        "
+      >
+        Baixar CSV
+      </a>
 
     </div>
 
@@ -164,6 +259,7 @@ function mostrarResultado(data, status) {
       color:#00b7ff;
       font-size:0.95rem;
       line-height:1.6;
+      margin-top:30px;
     ">${JSON.stringify(data, null, 2)}</pre>
   `;
 }
@@ -174,24 +270,15 @@ function mostrarResultado(data, status) {
 
 function mostrarErro(error) {
 
-  let resultadoContainer =
+  const resultadoContainer =
     document.getElementById("resultado-container");
-
-  if (!resultadoContainer) {
-
-    resultadoContainer = document.createElement("div");
-
-    resultadoContainer.id = "resultado-container";
-
-    resultadoContainer.classList.add("request-container");
-
-    document.querySelector(".hero-content")
-      .appendChild(resultadoContainer);
-  }
 
   resultadoContainer.innerHTML = `
 
-    <h2 style="margin-bottom:20px;color:#ef4444;">
+    <h2 style="
+      margin-bottom:20px;
+      color:#ef4444;
+    ">
       Erro na Requisição
     </h2>
 
@@ -210,42 +297,6 @@ function mostrarErro(error) {
 }
 
 /* =========================
-   HISTÓRICO LOCAL
-========================= */
-
-function salvarHistorico(requestData) {
-
-  const historico =
-    JSON.parse(localStorage.getItem("httpfrequency_history"))
-    || [];
-
-  historico.unshift(requestData);
-
-  /* limita histórico */
-  if (historico.length > 20) {
-    historico.pop();
-  }
-
-  localStorage.setItem(
-    "httpfrequency_history",
-    JSON.stringify(historico)
-  );
-}
-
-/* =========================
-   MOSTRAR HISTÓRICO
-========================= */
-
-function mostrarHistorico() {
-
-  const historico =
-    JSON.parse(localStorage.getItem("httpfrequency_history"))
-    || [];
-
-  console.log(historico);
-}
-
-/* =========================
    ANIMAÇÃO SUAVE SCROLL
 ========================= */
 
@@ -257,7 +308,9 @@ document.querySelectorAll('a[href^="#"]')
       e.preventDefault();
 
       const target =
-        document.querySelector(this.getAttribute("href"));
+        document.querySelector(
+          this.getAttribute("href")
+        );
 
       if (target) {
 
@@ -274,7 +327,8 @@ document.querySelectorAll('a[href^="#"]')
 
 window.addEventListener("scroll", () => {
 
-  const navbar = document.querySelector(".navbar");
+  const navbar =
+    document.querySelector(".navbar");
 
   if (window.scrollY > 30) {
 
@@ -289,7 +343,7 @@ window.addEventListener("scroll", () => {
 });
 
 /* =========================
-   ENTER PARA ENVIAR
+   CTRL + ENTER
 ========================= */
 
 document.addEventListener("keydown", (event) => {
