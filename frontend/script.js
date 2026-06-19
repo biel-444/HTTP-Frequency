@@ -2,7 +2,7 @@
    HTTPFrequency - script.js
 ========================= */
 
-const API_URL = "http-frequency-production.up.railway.app";
+const API_URL = "https://http-frequency-production.up.railway.app";
 
 /* =========================
    ENVIAR REQUEST
