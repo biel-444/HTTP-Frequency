@@ -14,10 +14,18 @@ async function enviarRequest() {
   const concurrencyInput = document.getElementById("concurrency");
   const timeoutInput   = document.getElementById("timeout");
 
+  /* ---------- normalização: adiciona https:// se necessário ---------- */
+
   const urls = urlsInput.value
     .split("\n")
     .map(url => url.trim())
-    .filter(url => url !== "");
+    .filter(url => url !== "")
+    .map(url => {
+      if (!/^https?:\/\//i.test(url)) {
+        return "https://" + url;
+      }
+      return url;
+    });
 
   /* ---------- validações ---------- */
 
@@ -28,12 +36,18 @@ async function enviarRequest() {
 
   for (const url of urls) {
     try {
-      new URL(url);
+      const parsed = new URL(url);
+      if (!parsed.hostname || parsed.hostname.indexOf(".") === -1) {
+        throw new Error("hostname inválido");
+      }
     } catch {
-      alert(`URL inválida: ${url}`);
+      alert(`URL inválida: ${url}\nVerifique o endereço digitado.`);
       return;
     }
   }
+
+  // atualiza o textarea com as URLs normalizadas (para o usuário ver)
+  urlsInput.value = urls.join("\n");
 
   const concurrency = parseInt(concurrencyInput.value) || 10;
   const timeout     = parseInt(timeoutInput.value)     || 10;
