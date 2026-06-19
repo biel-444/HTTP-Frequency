@@ -4,7 +4,7 @@ import pandas as pd
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from app.database import (
     buscar_execucao,
@@ -35,9 +35,14 @@ EXPORT_DIR = BASE_DIR / "exports"
 EXPORT_DIR.mkdir(exist_ok=True)
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def home():
     return {"status": "HTTPFrequency rodando"}
+
+
+@app.api_route("/health", methods=["GET", "HEAD"])
+def health():
+    return JSONResponse(content={"status": "ok"})
 
 
 @app.post("/executions")

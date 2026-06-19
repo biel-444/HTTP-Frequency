@@ -42,6 +42,16 @@ async def fetch_one(
             error=None,
         )
 
+    except httpx.ConnectError as e:
+        erro = "DNS/conexão falhou"
+        if "Name or service not known" in str(e) or "Errno -2" in str(e):
+            erro = "DNS não resolvido — verifique a URL"
+        return ProbeResult(
+            url=url, ok=False, status=None,
+            elapsed_s=None, bytes_rcv=None,
+            final_url=None, error=erro,
+        )
+
     except Exception as e:
 
         return ProbeResult(
