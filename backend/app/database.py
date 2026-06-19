@@ -27,10 +27,7 @@ def criar_execucao():
     return response.data[0]
 
 
-def salvar_resultados(
-    execution_id,
-    resultados
-):
+def salvar_resultados(execution_id, resultados):
 
     data = []
 
@@ -43,6 +40,8 @@ def salvar_resultados(
             "tempo_resposta": r.elapsed_s,
             "sucesso": r.ok,
             "erro": r.error,
+            "bytes_recebidos": r.bytes_rcv,
+            "final_url": r.final_url,
         })
 
     response = (
@@ -62,8 +61,12 @@ def listar_execucoes():
         .table("executions")
         .select("*")
         .order("created_at", desc=True)
+        .execute()          # <- estava faltando
     )
+
     return response.data
+
+
 def buscar_execucao(execution_id: int):
 
     execution = (

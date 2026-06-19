@@ -10,11 +10,10 @@ from app.database import (
     buscar_execucao,
     criar_execucao,
     listar_execucoes,
-    salvar_resultados
+    salvar_resultados,
 )
 
 from app.models import ExecutionRequest
-
 from app.service import run_probe
 
 
@@ -22,7 +21,6 @@ app = FastAPI(
     title="HTTPFrequency",
     version="3.0.0"
 )
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,86 +30,82 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 BASE_DIR = Path(__file__).resolve().parent
-
 EXPORT_DIR = BASE_DIR / "exports"
-
 EXPORT_DIR.mkdir(exist_ok=True)
+
 
 @app.get("/")
 def home():
-    return {
-        "status": "HTTPFrequency rodando"
-    }
+    return {"status": "HTTPFrequency rodando"}
 
 
 @app.post("/executions")
 async def executar_requests(payload: ExecutionRequest):
 
     try:
-
         execution = criar_execucao()
 
         resultados = await run_probe(
             urls=[str(url) for url in payload.urls],
             concurrency=payload.concurrency,
-            timeout=payload.timeout
+            timeout=payload.timeout,
         )
 
         salvar_resultados(
             execution_id=execution["id"],
-            resultados=resultados
+            resultados=resultados,
         )
 
-        csv_data = []
-
-        for r in resultados:
-
-            csv_data.append({
+        # --- monta lista de dicts para CSV e resposta ---
+        csv_data = [
+            {
                 "url": r.url,
                 "status_code": r.status,
                 "tempo_resposta": r.elapsed_s,
                 "sucesso": r.ok,
                 "erro": r.error,
                 "final_url": r.final_url,
-                "bytes_recebidos": r.bytes_rcv
-            })
-            df = pd.DataFrame(csv_data)
+                "bytes_recebidos": r.bytes_rcv,
+            }
+            for r in resultados
+        ]
+
+        # indentação corrigida: fora do loop
+        df = pd.DataFrame(csv_data)
 
         file_path = EXPORT_DIR / f"execution_{execution['id']}.csv"
-
         df.to_csv(file_path, index=False)
 
+        # --- métricas ---
         sucessos = len([r for r in resultados if r.ok])
         falhas = len(resultados) - sucessos
 
         tempos = [r.elapsed_s for r in resultados if r.elapsed_s is not None]
+        media_tempo = round(sum(tempos) / len(tempos), 3) if tempos else 0
 
-        media_tempo = (
-            sum(tempos) / len(tempos)
-            if tempos else 0
+        # --- ranking: URLs bem-sucedidas ordenadas por tempo ---
+        ranking = sorted(
+            [r for r in csv_data if r["sucesso"] and r["tempo_resposta"] is not None],
+            key=lambda x: x["tempo_resposta"],
         )
-        
+
         return {
             "execution_id": execution["id"],
-            "csv_file": str(file_path),
             "total_urls": len(resultados),
             "sucessos": sucessos,
             "falhas": falhas,
-            "tempo_medio": round(media_tempo, 3),
-            "resultados": csv_data
+            "tempo_medio": media_tempo,
+            "resultados": csv_data,
+            "ranking": ranking,
         }
 
     except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+
 @app.get("/executions")
 def get_execucoes():
-
     return listar_execucoes()
 
 
@@ -121,27 +115,21 @@ def get_execucao(execution_id: int):
     execution = buscar_execucao(execution_id)
 
     if not execution:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Execução não encontrada"
-        )
+        raise HTTPException(status_code=404, detail="Execução não encontrada")
 
     return execution
+
+
 @app.get("/executions/{execution_id}/download")
 def download_csv(execution_id: int):
 
     file_path = EXPORT_DIR / f"execution_{execution_id}.csv"
 
     if not file_path.exists():
-
-        raise HTTPException(
-            status_code=404,
-            detail="CSV não encontrado"
-        )
+        raise HTTPException(status_code=404, detail="CSV não encontrado")
 
     return FileResponse(
         path=file_path,
         filename=file_path.name,
-        media_type="text/csv"
+        media_type="text/csv",
     )
