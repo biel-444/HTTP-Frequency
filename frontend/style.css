@@ -814,3 +814,41 @@ tbody tr:hover td { color: rgba(255,255,255,0.75); }
   .stack-divider { width: 100%; height: 1px; margin: 0; }
   .stack-item { padding: 0; }
 }
+
+/* =========================
+   ABOUT — COMO FUNCIONA INTEGRADO
+========================= */
+
+.about {
+  grid-template-columns: 1fr;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-text {
+  width: 100%;
+}
+
+.about-how {
+  margin-top: 48px;
+}
+
+.about-how h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+  color: var(--text-primary);
+}
+
+.how-step .step-body h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.about-card {
+  width: 100%;
+  margin-top: 0;
+}
