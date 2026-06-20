@@ -118,7 +118,7 @@ function mostrarResultado(data, status) {
     data.resultados.forEach((r, i) => {
 
       const sucessoClass = r.sucesso ? "status-success" : "status-fail";
-      const sucessoLabel = r.sucesso ? "✓ Sucesso" : "✗ Falha";
+      const sucessoLabel = r.sucesso ? "Sucesso" : "Falha";
       const tempo = r.tempo_resposta
         ? (r.tempo_resposta * 1000).toFixed(1) + " ms"
         : "-";
@@ -146,7 +146,7 @@ function mostrarResultado(data, status) {
 
     rankingHTML = `
       <h3 style="margin:36px 0 14px;">
-        🏆 Ranking — mais rápidas primeiro
+        Ranking — mais rápidas primeiro
       </h3>
       <table>
         <thead>
@@ -162,7 +162,7 @@ function mostrarResultado(data, status) {
 
     data.ranking.forEach((r, i) => {
 
-      const medalha = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}º`;
+      const medalha = i === 0 ? "1." : i === 1 ? "2." : i === 2 ? "3." : `${i + 1}º`;
       const tempo   = (r.tempo_resposta * 1000).toFixed(1) + " ms";
 
       rankingHTML += `
@@ -201,8 +201,8 @@ function mostrarResultado(data, status) {
     ">
       <div><strong>HTTP:</strong> ${status}</div>
       <div><strong>Total:</strong> ${data.total_urls}</div>
-      <div><strong>✓ Sucessos:</strong> <span class="status-success">${data.sucessos}</span></div>
-      <div><strong>✗ Falhas:</strong> <span class="status-fail">${data.falhas}</span></div>
+      <div><strong>Sucessos:</strong> <span class="status-success">${data.sucessos}</span></div>
+      <div><strong>Falhas:</strong> <span class="status-fail">${data.falhas}</span></div>
       <div><strong>Tempo médio:</strong> ${(data.tempo_medio * 1000).toFixed(1)} ms</div>
     </div>
 
@@ -218,7 +218,7 @@ function mostrarResultado(data, status) {
         class="request-btn"
         style="text-decoration:none; display:inline-block;"
       >
-        ⬇ Baixar CSV
+        Baixar CSV
       </a>
     </div>
 

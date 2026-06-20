@@ -23,8 +23,8 @@
 
     <nav class="nav-links">
       <a href="#home">Home</a>
+      <a href="#como-funciona">Como Funciona</a>
       <a href="#sobre">Sobre</a>
-
       <a href="#faq">FAQ</a>
       <a href="#feedback">Feedbacks</a>
     </nav>
@@ -129,6 +129,94 @@
         performance e velocidade.
       </p>
 
+    </div>
+
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section class="how-it-works" id="como-funciona">
+
+    <h2 class="section-title">Como Funciona</h2>
+
+    <div class="how-steps">
+
+      <div class="how-step">
+        <div class="step-number">01</div>
+        <div class="step-body">
+          <h3>Entrada de URLs</h3>
+          <p>
+            Insira uma ou mais URLs no campo de texto, uma por linha.
+            O sistema aceita endereços com ou sem <code>https://</code>
+            e remove duplicatas automaticamente.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-connector"></div>
+
+      <div class="how-step">
+        <div class="step-number">02</div>
+        <div class="step-body">
+          <h3>Execução Assíncrona</h3>
+          <p>
+            O backend em FastAPI dispara todas as requisições de forma
+            concorrente usando <code>asyncio</code> e <code>httpx</code>,
+            respeitando o limite de concorrência configurado via semáforo.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-connector"></div>
+
+      <div class="how-step">
+        <div class="step-number">03</div>
+        <div class="step-body">
+          <h3>Coleta de Métricas</h3>
+          <p>
+            Para cada URL são medidos: tempo de resposta com
+            <code>perf_counter</code>, código HTTP, bytes recebidos,
+            URL final após redirecionamentos e erros de rede.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-connector"></div>
+
+      <div class="how-step">
+        <div class="step-number">04</div>
+        <div class="step-body">
+          <h3>Ranking e Relatório</h3>
+          <p>
+            Os resultados são ordenados por tempo de resposta, gerando
+            um ranking das URLs mais rápidas. Os dados são persistidos
+            no Supabase e exportados em CSV para download.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="how-stack">
+      <div class="stack-label">Stack técnica</div>
+      <div class="stack-items">
+        <div class="stack-item">
+          <span class="stack-tag">Frontend</span>
+          <span class="stack-name">HTML · CSS · JS</span>
+          <span class="stack-host">Vercel</span>
+        </div>
+        <div class="stack-divider"></div>
+        <div class="stack-item">
+          <span class="stack-tag">Backend</span>
+          <span class="stack-name">FastAPI · httpx · asyncio</span>
+          <span class="stack-host">Railway</span>
+        </div>
+        <div class="stack-divider"></div>
+        <div class="stack-item">
+          <span class="stack-tag">Banco de dados</span>
+          <span class="stack-name">PostgreSQL via Supabase</span>
+          <span class="stack-host">Supabase</span>
+        </div>
+      </div>
     </div>
 
   </section>

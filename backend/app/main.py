@@ -42,7 +42,14 @@ def home():
 
 @app.api_route("/health", methods=["GET", "HEAD"])
 def health():
-    return JSONResponse(content={"status": "ok"})
+    try:
+        # ping leve no Supabase para evitar pausa por inatividade
+        from app.database import supabase
+        supabase.table("executions").select("id").limit(1).execute()
+        db_status = "ok"
+    except Exception:
+        db_status = "unreachable"
+    return JSONResponse(content={"status": "ok", "db": db_status})
 
 
 @app.post("/executions")
