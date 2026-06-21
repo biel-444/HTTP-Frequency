@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.httpfrequency.com.br/sitemap.xml
